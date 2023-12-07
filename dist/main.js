@@ -1,1 +1,1 @@
-console.log("hi");
+(()=>{"use strict";class s{constructor(){console.log("Testing")}}new class{constructor(){this.knightMove=new s}}})();
