@@ -18,6 +18,9 @@ export class knightMove {
     Array.from({ length: 8 }, () => '')
   );
 
+  globalRow = 0;
+  globalCol = 0
+
   constructor() {
     this.switchKnight();
     this.switchOff();
@@ -37,11 +40,15 @@ export class knightMove {
           //Update array where the horse icon is
           this.updateArray(element, index);
         } else if (this.travailMode === true && this.isKnightOnBoard === true) {
-          this.removeKnight();
-          this.clearArray();
 
+          if(this.limitMove(index) === true){
+          this.removeKnight();
+          //Add before clear?
+          this.clearArray();
+          //Need to limit how knight move
           this.createKnight(element);
           this.updateArray(element, index);
+          }
         }
       });
     });
@@ -56,9 +63,50 @@ export class knightMove {
   updateArray(element, index) {
     const row = Math.floor(index / 8);
     const col = index % 8;
+
+    this.globalRow = row;
+    this.globalCol = col;
+
+    console.log('row : ' +  row + ' col :' + col )
     this.chessboard[row][col] = 'Icon';
-    console.log(this.chessboard);
   }
+
+  limitMove(index){
+
+    const row = Math.floor(index / 8);
+    const col = index % 8;
+
+    console.log(row, col)
+      //Bottom Left
+  //   if(
+  //     // this.chessboard[row-2][col+1] === this.chessboard[this.globalRow][this.globalCol] ||
+  //     // this.chessboard[row-1][col+2] === this.chessboard[this.globalRow][this.globalCol] ||
+    
+      
+     
+      
+  //     //Top Left
+  //   this.chessboard[row+2][col+1] === this.chessboard[this.globalRow][this.globalCol]|| 
+  //   this.chessboard[row+1][col+2] === this.chessboard[this.globalRow][this.globalCol]) {
+  //   return true
+  //   }
+
+  //  if( //Top Right
+  //  this.chessboard[row+2][col-1] === this.chessboard[this.globalRow][this.globalCol]
+  //  ||
+  //  this.chessboard[row+1][col-2] === this.chessboard[this.globalRow][this.globalCol])
+  // {
+  //   return true
+  // }
+
+  if( //Bottom Right
+  this.chessboard[row-2][col-1] === this.chessboard[this.globalRow][this.globalCol] ||
+  this.chessboard[row-1][col-2] === this.chessboard[this.globalRow][this.globalCol]){
+    return true
+  }
+
+  return false
+}
 
   //Click on place knight button to allow placing
   switchKnight() {
