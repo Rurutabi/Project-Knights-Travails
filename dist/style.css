@@ -2,7 +2,7 @@
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
   --main-grey: #e7e5e4;
   --text-size: 1rem;
-  --main-color: #c6ecac;
+  --main-color: #ffffff;
   --global-margin-top: 36px;
 }
 
@@ -30,6 +30,8 @@ span {
   justify-content: center;
   gap: 24px;
   background-color: var(--main-color);
+  /* background: url('images/chessbackground.jpg');
+  background-size: cover; */
 }
 
 .button-container {
@@ -53,15 +55,23 @@ button {
   grid-template-rows: repeat(8, 60px);
   box-shadow: var(--shadow);
 }
+
 .grid-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
   background-color: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.8);
-  padding: 20px;
   font-size: 30px;
   text-align: center;
 }
 
 .black {
   background-color: rgb(131, 127, 127);
+}
+
+.knight-icon {
+  width: 50px;
+  height: 50px;
 }
