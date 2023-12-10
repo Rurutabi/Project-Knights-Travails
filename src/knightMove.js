@@ -14,10 +14,12 @@ export class knightMove {
   travailMode = false;
   isKnightOnBoard = false;
 
+  //Array chessboard
   chessboard = Array.from({ length: 8 }, () =>
     Array.from({ length: 8 }, () => '')
   );
 
+  //Global col and row
   globalRow = 0;
   globalCol = 0;
 
@@ -26,6 +28,7 @@ export class knightMove {
     this.switchOff();
     this.placeKnight();
     this.switchTravails();
+    this.findPath();
   }
 
   //Place Knight on a grid
@@ -39,6 +42,8 @@ export class knightMove {
           this.placeMode = false;
           //Update array where the horse icon is
           this.updateArray(index);
+
+          console.log(this.globalRow, this.globalCol);
         } else if (this.travailMode === true && this.isKnightOnBoard === true) {
           if (this.limitMove(index) === true) {
             this.removeKnight();
@@ -54,6 +59,18 @@ export class knightMove {
     });
   }
 
+  findPath() {
+    if (this.chessboard === null) return;
+
+    let queue = [this.chessboard];
+
+    const current = queue.shift();
+    console.log();
+    // while (queue.length) {
+    //   const
+    // }
+  }
+
   switchTravails() {
     this.travailButton.addEventListener('click', (e) => {
       this.travailMode = true;
@@ -67,7 +84,7 @@ export class knightMove {
     this.globalRow = row;
     this.globalCol = col;
 
-    console.log('row : ' + row + ' col :' + col);
+    // console.log('row : ' + row + ' col :' + col);
     this.chessboard[row][col] = 'Icon';
   }
 
@@ -76,51 +93,45 @@ export class knightMove {
     const col = index % 8;
 
     const isWithinBounds = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
-
     // Bottom Left
     if (
-      isWithinBounds(row - 2, col + 1) &&
-      (this.chessboard[row - 2][col + 1] ===
-        this.chessboard[this.globalRow][this.globalCol] ||
-        this.chessboard[row - 1][col + 2] ===
-          this.chessboard[this.globalRow][this.globalCol])
+      (isWithinBounds(row, col) &&
+        this.globalRow + 2 === row &&
+        this.globalCol - 1 === col) ||
+      (this.globalRow + 1 === row && this.globalCol - 2 === col)
     ) {
       return true;
     }
 
     // Top Left
     if (
-      isWithinBounds(row + 2, col + 1) &&
-      (this.chessboard[row + 2][col + 1] ===
-        this.chessboard[this.globalRow][this.globalCol] ||
-        this.chessboard[row + 1][col + 2] ===
-          this.chessboard[this.globalRow][this.globalCol])
+      (isWithinBounds(row, col) &&
+        this.globalRow - 2 === row &&
+        this.globalCol - 1 === col) ||
+      (this.globalRow - 1 === row && this.globalCol - 2 === col)
     ) {
       return true;
     }
 
     // Top Right
     if (
-      isWithinBounds(row + 2, col - 1) &&
-      (this.chessboard[row + 2][col - 1] ===
-        this.chessboard[this.globalRow][this.globalCol] ||
-        this.chessboard[row + 1][col - 2] ===
-          this.chessboard[this.globalRow][this.globalCol])
+      (isWithinBounds(row, col) &&
+        this.globalRow - 2 === row &&
+        this.globalCol + 1 === col) ||
+      (this.globalRow - 1 === row && this.globalCol + 2 === col)
     ) {
       return true;
     }
 
     // Bottom Right
     if (
-      isWithinBounds(row - 2, col - 1) &&
-      (this.chessboard[row - 2][col - 1] ===
-        this.chessboard[this.globalRow][this.globalCol] ||
-        this.chessboard[row - 1][col - 2] ===
-          this.chessboard[this.globalRow][this.globalCol])
+      (isWithinBounds(row, col) &&
+        this.globalRow + 2 === row &&
+        this.globalCol + 1 === col) ||
+      (this.globalRow + 1 === row && this.globalCol + 2 === col)
     ) {
       return true;
     }
-
     return false;
   }
 
