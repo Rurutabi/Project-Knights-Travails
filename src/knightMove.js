@@ -11,8 +11,19 @@ export class knightMove {
 
   //Mode
   placeMode = false;
-  travailMode = false;
   isKnightOnBoard = false;
+
+  //Knight movement
+  knightMovement = [
+    [-2, -1],
+    [-1, -2],
+    [1, -2],
+    [2, -1],
+    [2, 1],
+    [1, 2],
+    [-1, 2],
+    [-2, 1],
+  ];
 
   //Array chessboard
   chessboard = Array.from({ length: 8 }, () =>
@@ -27,7 +38,7 @@ export class knightMove {
     this.switchKnight();
     this.switchOff();
     this.placeKnight();
-    this.switchTravails();
+    this.checkGridLocation();
     this.findPath();
   }
 
@@ -44,39 +55,32 @@ export class knightMove {
           this.updateArray(index);
 
           console.log(this.globalRow, this.globalCol);
-        } else if (this.travailMode === true && this.isKnightOnBoard === true) {
-          if (this.limitMove(index) === true) {
-            this.removeKnight();
-            //Add before clear?
-            this.clearArray();
-            //Need to limit how knight move
-            this.createKnight(element);
-            this.updateArray(index);
-            console.log(this.chessboard);
-          }
         }
+
+        const row = Math.floor(index / 8);
+        const col = index % 8;
+        console.log('row: ' + row + ' col ' + col);
       });
     });
   }
 
   findPath() {
-    if (this.chessboard === null) return;
-
-    let queue = [this.chessboard];
-
-    const current = queue.shift();
-    console.log();
-    // while (queue.length) {
-    //   const
-    // }
-  }
-
-  switchTravails() {
     this.travailButton.addEventListener('click', (e) => {
-      this.travailMode = true;
+      if (this.chessboard === null) return;
+
+      let queue = [this.chessboard];
+
+      const current = queue.shift();
+      console.log();
+      // while (queue.length) {
+      //   const
+      // }
     });
   }
 
+  checkGridLocation() {
+    this.travailMode = true;
+  }
   updateArray(index) {
     const row = Math.floor(index / 8);
     const col = index % 8;
@@ -86,53 +90,6 @@ export class knightMove {
 
     // console.log('row : ' + row + ' col :' + col);
     this.chessboard[row][col] = 'Icon';
-  }
-
-  limitMove(index) {
-    const row = Math.floor(index / 8);
-    const col = index % 8;
-
-    const isWithinBounds = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
-    // Bottom Left
-    if (
-      (isWithinBounds(row, col) &&
-        this.globalRow + 2 === row &&
-        this.globalCol - 1 === col) ||
-      (this.globalRow + 1 === row && this.globalCol - 2 === col)
-    ) {
-      return true;
-    }
-
-    // Top Left
-    if (
-      (isWithinBounds(row, col) &&
-        this.globalRow - 2 === row &&
-        this.globalCol - 1 === col) ||
-      (this.globalRow - 1 === row && this.globalCol - 2 === col)
-    ) {
-      return true;
-    }
-
-    // Top Right
-    if (
-      (isWithinBounds(row, col) &&
-        this.globalRow - 2 === row &&
-        this.globalCol + 1 === col) ||
-      (this.globalRow - 1 === row && this.globalCol + 2 === col)
-    ) {
-      return true;
-    }
-
-    // Bottom Right
-    if (
-      (isWithinBounds(row, col) &&
-        this.globalRow + 2 === row &&
-        this.globalCol + 1 === col) ||
-      (this.globalRow + 1 === row && this.globalCol + 2 === col)
-    ) {
-      return true;
-    }
-    return false;
   }
 
   //Click on place knight button to allow placing
@@ -170,5 +127,15 @@ export class knightMove {
 
   clearArray() {
     this.chessboard = this.chessboard.map((row) => row.map(() => ''));
+  }
+
+  //Delete it later help me find grid number
+
+  checkGridLocation() {
+    let temp = -1;
+    this.allGrid.forEach((value) => {
+      temp++;
+      value.textContent = value.textContent + temp;
+    });
   }
 }
