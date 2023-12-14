@@ -14,20 +14,12 @@ export class knightMove {
   isKnightOnBoard = false;
 
   //Knight movement
-  knightMovement = [
-    [-2, -1],
-    [-1, -2],
-    [1, -2],
-    [2, -1],
-    [2, 1],
-    [1, 2],
-    [-1, 2],
-    [-2, 1],
-  ];
-
+  knightMovementRows = [-2, -1, 1, 2, 2, 1, -1, -2];
+  knightMovementCols = [-1, -2, -2, -1, 1, 2, 2, 1];
   //Array chessboard
-  chessboard = Array.from({ length: 8 }, () =>
-    Array.from({ length: 8 }, () => '')
+
+  chessboard = Array.from({ length: 8 }, (_, row) =>
+    Array.from({ length: 8 }, (_, col) => [])
   );
 
   //Global col and row
@@ -40,6 +32,7 @@ export class knightMove {
     this.placeKnight();
     this.checkGridLocation();
     this.findPath();
+    this.adjustList();
   }
 
   //Place Knight on a grid
@@ -71,7 +64,7 @@ export class knightMove {
       let queue = [this.chessboard];
 
       const current = queue.shift();
-      console.log();
+
       // while (queue.length) {
       //   const
       // }
@@ -88,7 +81,6 @@ export class knightMove {
     this.globalRow = row;
     this.globalCol = col;
 
-    // console.log('row : ' + row + ' col :' + col);
     this.chessboard[row][col] = 'Icon';
   }
 
@@ -138,4 +130,52 @@ export class knightMove {
       value.textContent = value.textContent + temp;
     });
   }
+
+  isWithinBound(row, col) {
+    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  adjustList() {
+    const numRows = this.chessboard.length;
+    const numCols = this.chessboard[0].length;
+
+    for (let k = 0; k < numRows; k++) {
+      for (let j = 0; j < numCols; j++) {
+        for (let i = 0; i < this.knightMovementRows.length; i++) {
+          let row = k;
+          let col = j;
+
+          // Simulate knight's movement
+          const newRow = row + this.knightMovementRows[i];
+          const newCol = col + this.knightMovementCols[i];
+
+          if (this.isWithinBound(newRow, newCol)) {
+            const index = newRow * numCols + newCol;
+            this.chessboard[k][j].push(index);
+          }
+        }
+      }
+    }
+
+    console.log(this.chessboard);
+  }
 }
+
+//Knight movement
+// knightMovement = [
+//   [-2, -1],
+//   [-1, -2],
+//   [1, -2],
+//   [2, -1],
+//   [2, 1],
+//   [1, 2],
+//   [-1, 2],
+//   [-2, 1],
+// ];
+
+// knightMovementRows = [-2, -1, 1, 2, 2, 1, -1, -2];
+// knightMovementCols = [-1, -2, -2, -1, 1, 2, 2, 1];
