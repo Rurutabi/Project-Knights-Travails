@@ -25,6 +25,7 @@ export class knightMove {
   //Global col and row
   globalRow = 0;
   globalCol = 0;
+  globalIndex = 0;
 
   constructor() {
     this.switchKnight();
@@ -47,12 +48,14 @@ export class knightMove {
           //Update array where the horse icon is
           this.updateArray(index);
 
-          console.log(this.globalRow, this.globalCol);
+          console.log(this.globalIndex);
         }
 
         const row = Math.floor(index / 8);
         const col = index % 8;
-        console.log('row: ' + row + ' col ' + col);
+
+        console.log(row, col);
+        console.log('-----------------------------------------------');
       });
     });
   }
@@ -61,13 +64,69 @@ export class knightMove {
     this.travailButton.addEventListener('click', (e) => {
       if (this.chessboard === null) return;
 
-      let queue = [this.chessboard];
+      let bfsInfo = [];
+      let temp = 0;
 
-      const current = queue.shift();
+      for (let i = 0; i < this.chessboard.length; i++) {
+        bfsInfo[i] = [];
 
-      // while (queue.length) {
-      //   const
-      // }
+        for (let j = 0; j < this.chessboard[i].length; j++) {
+          bfsInfo[i][j] = {
+            distance: null,
+            predecessor: null,
+            number: temp++,
+          };
+        }
+      }
+
+      let gRow = Math.floor(this.globalIndex / 8);
+      let gCol = this.globalIndex % 8;
+      let isVisited = new Set();
+      bfsInfo[gRow][gCol].distance = 0;
+
+      let queue = [this.globalIndex];
+
+      // const row = Math.floor(index / 8);
+      // const col = index % 8;
+      while (queue.length) {
+        const current = queue.shift();
+
+        if (!isVisited.has(current)) {
+          //Turn current into current row and col
+          let currentRow = Math.floor(current / 8);
+          let currentCol = current % 8;
+
+          // console.log('Visit ' + current);
+          //Found value in the first
+          if (currentRow === 7 && currentCol === 0) {
+            console.log(
+              'The distance is ' + bfsInfo[currentRow][currentCol].distance
+            );
+            console.log(bfsInfo);
+            console.log('Destination found');
+            return;
+          }
+
+          for (
+            let i = 0;
+            i < this.chessboard[currentRow][currentCol].length;
+            i++
+          ) {
+            let neighbour = this.chessboard[currentRow][currentCol][i];
+            let nextRow = Math.floor(neighbour / 8);
+            let nextCol = neighbour % 8;
+
+            if (bfsInfo[nextRow][nextCol].distance === null) {
+              bfsInfo[nextRow][nextCol].distance =
+                bfsInfo[currentRow][currentCol].distance + 1;
+
+              bfsInfo[nextRow][nextCol].predecessor = current;
+              queue.push(neighbour);
+            }
+          }
+          isVisited.add(current);
+        }
+      }
     });
   }
 
@@ -78,10 +137,9 @@ export class knightMove {
     const row = Math.floor(index / 8);
     const col = index % 8;
 
+    this.globalIndex = index;
     this.globalRow = row;
     this.globalCol = col;
-
-    this.chessboard[row][col] = 'Icon';
   }
 
   //Click on place knight button to allow placing
@@ -98,7 +156,6 @@ export class knightMove {
       this.removeKnight();
       this.isKnightOnBoard = false;
       this.placeMode = false;
-      console.log(this.chessboard);
     });
   }
 
@@ -161,7 +218,8 @@ export class knightMove {
       }
     }
 
-    console.log(this.chessboard);
+    // console.log(this.chessboard[4][4][0]);
+    console.log(this.chessboard[4][4].length);
   }
 }
 
