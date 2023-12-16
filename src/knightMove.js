@@ -128,7 +128,7 @@ export class knightMove {
                 }
               }
 
-              this.moveKnight(this.pathArr, current);
+              this.moveKnight(this.pathArr, current, firstDistance);
             }
 
             for (
@@ -158,7 +158,7 @@ export class knightMove {
     });
   }
 
-  moveKnight(pathArr, target) {
+  moveKnight(pathArr, target, distance) {
     this.removeKnight();
 
     //Show in console
@@ -170,8 +170,25 @@ export class knightMove {
       }
     }
 
-    // //Move knight
-    // for (let i = 1; i < pathArr.length; i++) {}
+    console.log('The total distance is ', distance);
+
+    // Simple knight move to target
+    for (let i = 0; i < this.allGrid.length; i++) {
+      if (i === target) {
+        this.createKnight(this.allGrid[i]);
+        this.pathArr.length = 0;
+        break;
+      }
+    }
+
+    // for (let i = 1; i < pathArr.length; i++) {
+    //   let current = pathArr[i];
+    //   for (let j = 0; j < this.allGrid.length; j++) {
+    //     if (current === j) {
+    //       this.createKnight(this.allGrid[j]);
+    //     }
+    //   }
+    // }
   }
 
   checkGridLocation() {
@@ -198,6 +215,13 @@ export class knightMove {
       this.removeKnight();
       this.isKnightOnBoard = false;
       this.placeMode = false;
+      this.isBoardRed = false;
+      this.destinationIndex = null;
+      this.allGrid.forEach((value) => {
+        if (value.classList.contains('red')) {
+          value.classList.remove('red');
+        }
+      });
     });
   }
 
@@ -264,31 +288,11 @@ export class knightMove {
 
   //Delete it later help me find grid number
 
-  checkGridLocation() {
-    let temp = -1;
-    this.allGrid.forEach((value) => {
-      temp++;
-      value.textContent = value.textContent + temp;
-    });
-  }
+  // checkGridLocation() {
+  //   let temp = -1;
+  //   this.allGrid.forEach((value) => {
+  //     temp++;
+  //     value.textContent = value.textContent + temp;
+  //   });
+  // }
 }
-
-// const row = this.getRow(index);
-// const col = index % 8;
-// console.log(row, col);
-// console.log('-----------------------------------------------');
-
-//Knight movement
-// knightMovement = [
-//   [-2, -1],
-//   [-1, -2],
-//   [1, -2],
-//   [2, -1],
-//   [2, 1],
-//   [1, 2],
-//   [-1, 2],
-//   [-2, 1],
-// ];
-
-// knightMovementRows = [-2, -1, 1, 2, 2, 1, -1, -2];
-// knightMovementCols = [-1, -2, -2, -1, 1, 2, 2, 1];
