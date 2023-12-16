@@ -19,12 +19,12 @@ export class knightMove {
   knightMovementRows = [-2, -1, 1, 2, 2, 1, -1, -2];
   knightMovementCols = [-1, -2, -2, -1, 1, 2, 2, 1];
   //Array chessboard
-  chessboard = Array.from({ length: 8 }, (_, row) =>
-    Array.from({ length: 8 }, (_, col) => [])
+  chessboard = Array.from({ length: 8 }, () =>
+    Array.from({ length: 8 }, () => [])
   );
 
   //Global col and row
-  starterPosition = 0;
+  starterPosition = null;
   destinationIndex = null;
 
   //Path
@@ -34,18 +34,34 @@ export class knightMove {
     this.switchKnight();
     this.switchOff();
     this.placeKnight();
-    this.checkGridLocation();
     this.findPath();
     this.adjacencyList();
     this.switchEnd();
+    this.placeRandomKnight();
   }
 
   //Place Knight on a grid
   placeKnight() {
     this.allGrid.forEach((element, index) => {
-      element.addEventListener('click', (e) =>
-        this.handleGridClick(element, index)
-      );
+      element.addEventListener('click', (e) => {
+        this.handleGridClick(element, index);
+      });
+    });
+  }
+
+  placeRandomKnight() {
+    this.randomButton.addEventListener('click', () => {
+      if (this.isKnightOnBoard === false) {
+        const randomNumber = Math.floor(Math.random() * 64);
+
+        for (let index = 0; index < this.allGrid.length; index++) {
+          if (index === randomNumber) {
+            this.createKnight(this.allGrid[index]);
+            this.isKnightOnBoard = true;
+            this.starterPosition = index;
+          }
+        }
+      }
     });
   }
 
@@ -66,12 +82,6 @@ export class knightMove {
       this.isBoardRed = true;
       this.destinationIndex = index;
     }
-
-    const row = this.getRow(index);
-    const col = index % 8;
-    console.log('Row : ', row, 'Col ', col);
-    console.log('-----------------------------------------------');
-    console.log(this.pathArr);
   }
 
   findPath() {
@@ -164,9 +174,9 @@ export class knightMove {
     //Show in console
     for (let i = 0; i < pathArr.length; i++) {
       if (pathArr[i + 1] !== undefined) {
-        console.log('We go from', pathArr[i], pathArr[i + 1]);
+        console.log('We move from', pathArr[i], 'to', pathArr[i + 1]);
       } else {
-        console.log('We go from', pathArr[i], target);
+        console.log('We move from', pathArr[i], 'to', target);
       }
     }
 
@@ -177,22 +187,12 @@ export class knightMove {
       if (i === target) {
         this.createKnight(this.allGrid[i]);
         this.pathArr.length = 0;
-        break;
       }
     }
-
-    // for (let i = 1; i < pathArr.length; i++) {
-    //   let current = pathArr[i];
-    //   for (let j = 0; j < this.allGrid.length; j++) {
-    //     if (current === j) {
-    //       this.createKnight(this.allGrid[j]);
-    //     }
-    //   }
-    // }
-  }
-
-  checkGridLocation() {
-    this.travailMode = true;
+    this.starterPosition = target;
+    this.removeRed();
+    this.isBoardRed = false;
+    this.destinationIndex = null;
   }
 
   //Click on place knight button to allow placing
@@ -213,19 +213,23 @@ export class knightMove {
       //Create new array, might replace with for loop later
       this.pathArr.length = 0;
       this.removeKnight();
+      this.removeRed();
       this.isKnightOnBoard = false;
       this.placeMode = false;
       this.isBoardRed = false;
       this.destinationIndex = null;
-      this.allGrid.forEach((value) => {
-        if (value.classList.contains('red')) {
-          value.classList.remove('red');
-        }
-      });
     });
   }
 
   /*Helper Method*/
+
+  removeRed() {
+    this.allGrid.forEach((value) => {
+      if (value.classList.contains('red')) {
+        value.classList.remove('red');
+      }
+    });
+  }
 
   getRow(index) {
     return Math.floor(index / 8);
@@ -243,7 +247,6 @@ export class knightMove {
     const knightImg = document.createElement('img');
     knightImg.classList.add('knight-icon');
     knightImg.src = 'images/knighticon.png';
-
     element.appendChild(knightImg);
   }
 
@@ -285,14 +288,4 @@ export class knightMove {
       }
     }
   }
-
-  //Delete it later help me find grid number
-
-  // checkGridLocation() {
-  //   let temp = -1;
-  //   this.allGrid.forEach((value) => {
-  //     temp++;
-  //     value.textContent = value.textContent + temp;
-  //   });
-  // }
 }
