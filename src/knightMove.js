@@ -12,13 +12,13 @@ export class knightMove {
   //Mode
   placeMode = false;
   isKnightOnBoard = false;
+  isBoardRed = false;
   selectendMode = false;
 
   //Knight movement
   knightMovementRows = [-2, -1, 1, 2, 2, 1, -1, -2];
   knightMovementCols = [-1, -2, -2, -1, 1, 2, 2, 1];
   //Array chessboard
-
   chessboard = Array.from({ length: 8 }, (_, row) =>
     Array.from({ length: 8 }, (_, col) => [])
   );
@@ -26,6 +26,9 @@ export class knightMove {
   //Global col and row
   starterPosition = 0;
   destinationIndex = null;
+
+  //Path
+  pathArr = [];
 
   constructor() {
     this.switchKnight();
@@ -40,29 +43,35 @@ export class knightMove {
   //Place Knight on a grid
   placeKnight() {
     this.allGrid.forEach((element, index) => {
-      element.addEventListener('click', (e) => {
-        if (this.placeMode === true && this.isKnightOnBoard === false) {
-          this.createKnight(element);
-
-          this.isKnightOnBoard = true;
-          this.placeMode = false;
-          //Update starter location of the horse
-          this.starterPosition = index;
-        } else if (
-          this.isKnightOnBoard === true &&
-          this.selectendMode === true
-        ) {
-          this.destinationIndex = index;
-          console.log(this.destinationIndex);
-        }
-
-        const row = this.getRow(index);
-        const col = index % 8;
-        console.log(this.destinationIndex);
-        console.log('Row : ', row, 'Col ', col);
-        console.log('-----------------------------------------------');
-      });
+      element.addEventListener('click', (e) =>
+        this.handleGridClick(element, index)
+      );
     });
+  }
+
+  handleGridClick(element, index) {
+    if (this.placeMode === true && this.isKnightOnBoard === false) {
+      this.createKnight(element);
+
+      this.isKnightOnBoard = true;
+      this.placeMode = false;
+      //Update starter location of the horse
+      this.starterPosition = index;
+    } else if (
+      this.isKnightOnBoard === true &&
+      this.selectendMode === true &&
+      this.isBoardRed === false
+    ) {
+      element.classList.add('red');
+      this.isBoardRed = true;
+      this.destinationIndex = index;
+    }
+
+    const row = this.getRow(index);
+    const col = index % 8;
+    console.log('Row : ', row, 'Col ', col);
+    console.log('-----------------------------------------------');
+    console.log(this.pathArr);
   }
 
   findPath() {
@@ -99,19 +108,27 @@ export class knightMove {
             let currentRow = this.getRow(current);
             let currentCol = this.getCol(current);
 
-            console.log(
-              'Predecessor',
-              chessboardInfo[currentRow][currentCol].predecessor
-            );
-            console.log('We visited', current);
-
-            //Value found
+            //////////////////////Value found
             if (current === this.destinationIndex) {
-              console.log(chessboardInfo[currentRow][currentCol]);
+              let firstDistance =
+                chessboardInfo[currentRow][currentCol].distance;
 
-              console.log(chessboardInfo);
-              console.log('Destination found');
-              return;
+              // console.log(chessboardInfo[currentRow][currentCol]);
+              if (chessboardInfo[currentRow][currentCol].distance !== null) {
+                for (let i = 0; i < firstDistance; i++) {
+                  let reverseIndex =
+                    chessboardInfo[currentRow][currentCol].predecessor;
+
+                  currentRow = this.getRow(reverseIndex);
+                  currentCol = this.getCol(reverseIndex);
+
+                  this.pathArr.push(reverseIndex);
+                  this.pathArr.reverse();
+                  // console.log(this.pathArr);
+                }
+              }
+
+              this.moveKnight(this.pathArr, current);
             }
 
             for (
@@ -141,6 +158,22 @@ export class knightMove {
     });
   }
 
+  moveKnight(pathArr, target) {
+    this.removeKnight();
+
+    //Show in console
+    for (let i = 0; i < pathArr.length; i++) {
+      if (pathArr[i + 1] !== undefined) {
+        console.log('We go from', pathArr[i], pathArr[i + 1]);
+      } else {
+        console.log('We go from', pathArr[i], target);
+      }
+    }
+
+    // //Move knight
+    // for (let i = 1; i < pathArr.length; i++) {}
+  }
+
   checkGridLocation() {
     this.travailMode = true;
   }
@@ -161,7 +194,7 @@ export class knightMove {
   switchOff() {
     this.clearButton.addEventListener('click', (e) => {
       //Create new array, might replace with for loop later
-      this.clearArray();
+      this.pathArr.length = 0;
       this.removeKnight();
       this.isKnightOnBoard = false;
       this.placeMode = false;
