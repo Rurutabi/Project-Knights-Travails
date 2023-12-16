@@ -6,12 +6,13 @@ export class knightMove {
   placeButton = document.querySelector('.place-knight');
   clearButton = document.querySelector('.clear');
   randomButton = document.querySelector('.random-knight');
-  selectButton = document.querySelector('.select-end');
-  travailButton = document.querySelector('.travail');
+  endButton = document.querySelector('.select-end');
+  searchButton = document.querySelector('.travail');
 
   //Mode
   placeMode = false;
   isKnightOnBoard = false;
+  selectendMode = false;
 
   //Knight movement
   knightMovementRows = [-2, -1, 1, 2, 2, 1, -1, -2];
@@ -23,9 +24,8 @@ export class knightMove {
   );
 
   //Global col and row
-  globalRow = 0;
-  globalCol = 0;
-  globalIndex = 0;
+  starterPosition = 0;
+  destinationIndex = null;
 
   constructor() {
     this.switchKnight();
@@ -33,7 +33,8 @@ export class knightMove {
     this.placeKnight();
     this.checkGridLocation();
     this.findPath();
-    this.adjustList();
+    this.adjacencyList();
+    this.switchEnd();
   }
 
   //Place Knight on a grid
@@ -45,86 +46,96 @@ export class knightMove {
 
           this.isKnightOnBoard = true;
           this.placeMode = false;
-          //Update array where the horse icon is
-          this.updateArray(index);
-
-          console.log(this.globalIndex);
+          //Update starter location of the horse
+          this.starterPosition = index;
+        } else if (
+          this.isKnightOnBoard === true &&
+          this.selectendMode === true
+        ) {
+          this.destinationIndex = index;
+          console.log(this.destinationIndex);
         }
 
-        const row = Math.floor(index / 8);
+        const row = this.getRow(index);
         const col = index % 8;
-
-        console.log(row, col);
+        console.log(this.destinationIndex);
+        console.log('Row : ', row, 'Col ', col);
         console.log('-----------------------------------------------');
       });
     });
   }
 
   findPath() {
-    this.travailButton.addEventListener('click', (e) => {
-      if (this.chessboard === null) return;
+    this.searchButton.addEventListener('click', (e) => {
+      if (this.destinationIndex !== null && this.isKnightOnBoard === true) {
+        //Record movement predecessor
+        let chessboardInfo = [];
+        let cellNumber = 0;
 
-      let bfsInfo = [];
-      let temp = 0;
-
-      for (let i = 0; i < this.chessboard.length; i++) {
-        bfsInfo[i] = [];
-
-        for (let j = 0; j < this.chessboard[i].length; j++) {
-          bfsInfo[i][j] = {
-            distance: null,
-            predecessor: null,
-            number: temp++,
-          };
+        for (let i = 0; i < this.chessboard.length; i++) {
+          chessboardInfo[i] = [];
+          for (let j = 0; j < this.chessboard[i].length; j++) {
+            chessboardInfo[i][j] = {
+              distance: null,
+              predecessor: null,
+              number: cellNumber++,
+            };
+          }
         }
-      }
 
-      let gRow = Math.floor(this.globalIndex / 8);
-      let gCol = this.globalIndex % 8;
-      let isVisited = new Set();
-      bfsInfo[gRow][gCol].distance = 0;
+        let startRow = this.getRow(this.starterPosition);
+        let startCol = this.getCol(this.starterPosition);
 
-      let queue = [this.globalIndex];
+        let isVisited = new Set();
+        chessboardInfo[startRow][startCol].distance = 0;
 
-      // const row = Math.floor(index / 8);
-      // const col = index % 8;
-      while (queue.length) {
-        const current = queue.shift();
+        let queue = [this.starterPosition];
 
-        if (!isVisited.has(current)) {
-          //Turn current into current row and col
-          let currentRow = Math.floor(current / 8);
-          let currentCol = current % 8;
+        while (queue.length) {
+          const current = queue.shift();
 
-          // console.log('Visit ' + current);
-          //Found value in the first
-          if (currentRow === 7 && currentCol === 0) {
+          if (!isVisited.has(current)) {
+            //Turn current into current row and col
+            let currentRow = this.getRow(current);
+            let currentCol = this.getCol(current);
+
             console.log(
-              'The distance is ' + bfsInfo[currentRow][currentCol].distance
+              'Predecessor',
+              chessboardInfo[currentRow][currentCol].predecessor
             );
-            console.log(bfsInfo);
-            console.log('Destination found');
-            return;
-          }
+            console.log('We visited', current);
 
-          for (
-            let i = 0;
-            i < this.chessboard[currentRow][currentCol].length;
-            i++
-          ) {
-            let neighbour = this.chessboard[currentRow][currentCol][i];
-            let nextRow = Math.floor(neighbour / 8);
-            let nextCol = neighbour % 8;
+            //Value found
+            if (current === this.destinationIndex) {
+              console.log(chessboardInfo[currentRow][currentCol]);
 
-            if (bfsInfo[nextRow][nextCol].distance === null) {
-              bfsInfo[nextRow][nextCol].distance =
-                bfsInfo[currentRow][currentCol].distance + 1;
-
-              bfsInfo[nextRow][nextCol].predecessor = current;
-              queue.push(neighbour);
+              console.log(chessboardInfo);
+              console.log('Destination found');
+              return;
             }
+
+            for (
+              let i = 0;
+              i < this.chessboard[currentRow][currentCol].length;
+              i++
+            ) {
+              let neighbour = this.chessboard[currentRow][currentCol][i];
+              let neighbourRow = this.getRow(neighbour);
+              let neighbourCol = this.getCol(neighbour);
+
+              if (
+                chessboardInfo[neighbourRow][neighbourCol].distance === null
+              ) {
+                chessboardInfo[neighbourRow][neighbourCol].distance =
+                  chessboardInfo[currentRow][currentCol].distance + 1;
+
+                chessboardInfo[neighbourRow][neighbourCol].predecessor =
+                  current;
+                queue.push(neighbour);
+              }
+            }
+            isVisited.add(current);
           }
-          isVisited.add(current);
         }
       }
     });
@@ -133,19 +144,17 @@ export class knightMove {
   checkGridLocation() {
     this.travailMode = true;
   }
-  updateArray(index) {
-    const row = Math.floor(index / 8);
-    const col = index % 8;
-
-    this.globalIndex = index;
-    this.globalRow = row;
-    this.globalCol = col;
-  }
 
   //Click on place knight button to allow placing
   switchKnight() {
     this.placeButton.addEventListener('click', (e) => {
       this.placeMode = true;
+    });
+  }
+
+  switchEnd() {
+    this.endButton.addEventListener('click', () => {
+      this.selectendMode = true;
     });
   }
 
@@ -160,6 +169,18 @@ export class knightMove {
   }
 
   /*Helper Method*/
+
+  getRow(index) {
+    return Math.floor(index / 8);
+  }
+
+  getCol(index) {
+    return index % 8;
+  }
+
+  getIndex(row, col, numCols) {
+    return row * numCols + col;
+  }
 
   createKnight(element) {
     const knightImg = document.createElement('img');
@@ -178,6 +199,36 @@ export class knightMove {
     this.chessboard = this.chessboard.map((row) => row.map(() => ''));
   }
 
+  isWithinBound(row, col) {
+    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  adjacencyList() {
+    const numRows = this.chessboard.length;
+    const numCols = this.chessboard[0].length;
+
+    for (let currentRow = 0; currentRow < numRows; currentRow++) {
+      for (let currentCol = 0; currentCol < numCols; currentCol++) {
+        for (let i = 0; i < this.knightMovementRows.length; i++) {
+          const row = currentRow;
+          const col = currentCol;
+
+          const newRow = row + this.knightMovementRows[i];
+          const newCol = col + this.knightMovementCols[i];
+
+          if (this.isWithinBound(newRow, newCol)) {
+            const index = this.getIndex(newRow, newCol, numCols);
+            this.chessboard[currentRow][currentCol].push(index);
+          }
+        }
+      }
+    }
+  }
+
   //Delete it later help me find grid number
 
   checkGridLocation() {
@@ -187,41 +238,12 @@ export class knightMove {
       value.textContent = value.textContent + temp;
     });
   }
-
-  isWithinBound(row, col) {
-    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  adjustList() {
-    const numRows = this.chessboard.length;
-    const numCols = this.chessboard[0].length;
-
-    for (let k = 0; k < numRows; k++) {
-      for (let j = 0; j < numCols; j++) {
-        for (let i = 0; i < this.knightMovementRows.length; i++) {
-          let row = k;
-          let col = j;
-
-          // Simulate knight's movement
-          const newRow = row + this.knightMovementRows[i];
-          const newCol = col + this.knightMovementCols[i];
-
-          if (this.isWithinBound(newRow, newCol)) {
-            const index = newRow * numCols + newCol;
-            this.chessboard[k][j].push(index);
-          }
-        }
-      }
-    }
-
-    // console.log(this.chessboard[4][4][0]);
-    console.log(this.chessboard[4][4].length);
-  }
 }
+
+// const row = this.getRow(index);
+// const col = index % 8;
+// console.log(row, col);
+// console.log('-----------------------------------------------');
 
 //Knight movement
 // knightMovement = [
