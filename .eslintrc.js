@@ -13,12 +13,18 @@ module.exports = {
       parserOptions: {
         sourceType: 'script',
       },
+      rules: {
+        'no-console': 'off',
+        'no-unused-vars': 'off',
+      },
     },
   ],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  rules: { 'no-console': 'off' },
-  'no-unused-vars': 'off',
+  rules: {
+    'no-console': 'off',
+    'no-unused-vars': 'off',
+  },
 };
